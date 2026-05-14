@@ -27,6 +27,17 @@ def main() -> None:
     ap.add_argument("--refs-cands", help="JSON list of {reference, candidate}")
     ap.add_argument("--test-jsonl", help="JSONL with input, output; requires --pred-jsonl")
     ap.add_argument("--pred-jsonl", help="Same order as test-jsonl, field candidate or output")
+    ap.add_argument(
+        "--min-nli",
+        type=float,
+        default=None,
+        help="If set, exit with code 2 when mean NLI entailment score is below this threshold.",
+    )
+    ap.add_argument(
+        "--metrics-json",
+        default="",
+        help="If set, also write full metrics dict to this JSON file.",
+    )
     args = ap.parse_args()
 
     from q1_3stage_pipeline.evaluation.legal_metrics import statute_correctness_score
@@ -78,6 +89,24 @@ def main() -> None:
     m["refusal_rate"] = sum(refusal_flag(c) for c in cands) / max(len(cands), 1)
 
     print(json.dumps(m, indent=2))
+
+    if args.metrics_json:
+        out_p = Path(args.metrics_json)
+        out_p.parent.mkdir(parents=True, exist_ok=True)
+        out_p.write_text(json.dumps(m, indent=2), encoding="utf-8")
+
+    if args.min_nli is not None:
+        nli = float(m.get("nli_score", 0.0))
+        if m.get("nli_error"):
+            print(f"NLI not computed: {m.get('nli_error')}", file=sys.stderr)
+            sys.exit(1)
+        if nli < float(args.min_nli):
+            print(
+                f"NLI score {nli:.4f} is below required minimum {float(args.min_nli):.4f}. "
+                "Try a stronger checkpoint, more DPO training, or different beta / decoding.",
+                file=sys.stderr,
+            )
+            sys.exit(2)
 
 
 if __name__ == "__main__":

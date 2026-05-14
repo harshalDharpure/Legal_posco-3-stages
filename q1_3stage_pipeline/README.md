@@ -63,6 +63,33 @@ Notes:
 - It will auto-create `q1_3stage_pipeline/data/final_train_dialogues.jsonl` (dialogue-level train+val) if missing.
 - If you want Stage 2 to resume from `output_dir/checkpoints/latest.pt`, add `--resume-stage2`.
 
+### Stage 3 only + test evaluation (skip new Stage 2 training)
+
+Use this when **Stage 1 and Stage 2 (M2) are already done** and you want **DPO (M3)** then **test-set metrics**, with an optional **NLI floor** (mean entailment probability from `microsoft/deberta-base-mnli`).
+
+One script (from repo root; set `HF_TOKEN` / GPU first):
+
+```bash
+bash q1_3stage_pipeline/scripts/run_stage3_and_eval_test.sh
+```
+
+Defaults: M2 = `.../stage2/M2_fromM1_seed43_full_resume_gpu4/best`, train JSONL = `train_70_dialogues.jsonl`, test = `test_20_dialogues.jsonl`, **MIN_NLI=0.70** (script exits with code **2** if below).
+
+Useful overrides:
+
+```bash
+export CUDA_VISIBLE_DEVICES=0
+export M2_PATH=q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_resume_gpu4/best
+export MIN_NLI=0.70
+export SKIP_DPO=1   # if M3/final already exists under M3_OUT
+export GEN_MODEL_PATH=q1_3stage_pipeline/logs/checkpoints/stage2/.../best  # eval M2 without running DPO
+bash q1_3stage_pipeline/scripts/run_stage3_and_eval_test.sh
+```
+
+Manual steps are: `evaluation/prepare_test_pairs.py` → `stage3_dpo/train.py` → `evaluation/generate_preds.py` → `evaluation/run_eval.py --min-nli 0.70`.
+
+**Note:** NLI here is a **proxy** (reference as premise, model output as hypothesis). Hitting **0.70** on Hindi/code-mixed legal text may require a stronger M3 or hyperparameter search; if the check fails, lower `MIN_NLI` or iterate on DPO (`BETA`, epochs).
+
 ### Prerequisites (Hugging Face access + token)
 
 You must have access to the base model repo:
