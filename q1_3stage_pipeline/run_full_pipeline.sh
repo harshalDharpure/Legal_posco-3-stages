@@ -57,9 +57,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-mkdir -p "${PIPE_DIR}/logs/pipeline_runs"
+mkdir -p "${PIPE_DIR}/outputs/pipeline_runs"
 TS="$(date +%Y%m%d_%H%M%S)"
-LOG_FILE="${PIPE_DIR}/logs/pipeline_runs/pipeline_${TS}.log"
+LOG_FILE="${PIPE_DIR}/outputs/pipeline_runs/pipeline_${TS}.log"
 
 export HF_HUB_DISABLE_TELEMETRY="${HF_HUB_DISABLE_TELEMETRY:-1}"
 export PYTORCH_ALLOC_CONF="${PYTORCH_ALLOC_CONF:-expandable_segments:True}"

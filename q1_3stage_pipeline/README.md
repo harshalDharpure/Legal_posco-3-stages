@@ -1,4 +1,7 @@
-# Q1-style 3-stage legal dialogue research pipeline (standalone)
+# Q1-style 3-stage legal dialogue research pipeline
+
+> **New students:** start with the main guide at **[`../README.md`](../README.md)** in the repo root.  
+> This file is a shorter technical reference for the `q1_3stage_pipeline/` folder.
 
 This folder contains **only** the 3-stage pipeline we discussed:
 
