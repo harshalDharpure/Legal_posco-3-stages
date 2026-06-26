@@ -15,11 +15,11 @@ _REPO = Path(__file__).resolve().parents[2]
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="q1_3stage_pipeline/configs/pipeline_default.yaml")
-    ap.add_argument("--train-jsonl", default="q1_3stage_pipeline/data/splits/train.jsonl")
-    ap.add_argument("--val-jsonl", default="q1_3stage_pipeline/data/splits/val.jsonl")
+    ap.add_argument("--train-jsonl", default="datasets/dialogue_splits_70_10_20/train_70_dialogues.jsonl")
+    ap.add_argument("--val-jsonl", default="datasets/dialogue_splits_70_10_20/val_10_dialogues.jsonl")
     ap.add_argument("--m1-path", required=True, help="Stage1 final checkpoint to initialize Stage2 (strict).")
     ap.add_argument("--init-from", choices=["base", "exp3"], default="base")
-    ap.add_argument("--out-root", default="q1_3stage_pipeline/logs/checkpoints/stage2_ablations")
+    ap.add_argument("--out-root", default="q1_3stage_pipeline/outputs/checkpoints/stage2_ablations")
     args = ap.parse_args()
 
     modes = ["gen_only", "gen_entail", "gen_triplet", "full"]
@@ -28,7 +28,7 @@ def main() -> None:
         out.mkdir(parents=True, exist_ok=True)
         cmd = [
             sys.executable,
-            str(_REPO / "q1_3stage_pipeline/stage2_multi_objective/train.py"),
+            str(_REPO / "q1_3stage_pipeline/stage2/train.py"),
             "--config",
             str(_REPO / args.config),
             "--init-from",

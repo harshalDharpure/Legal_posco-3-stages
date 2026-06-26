@@ -88,14 +88,14 @@ def main() -> None:
     cfg = load_yaml(cfg_path)
 
     paths = cfg.get("paths", {})
-    ckpt_root = Path(paths.get("checkpoints_root", "q1_3stage_pipeline/logs/checkpoints"))
+    ckpt_root = Path(paths.get("checkpoints_root", "q1_3stage_pipeline/outputs/checkpoints"))
     if not ckpt_root.is_absolute():
         ckpt_root = REPO / ckpt_root
 
     data = cfg.get("data", {})
     train_path = Path(data["train_path"])
     val_path = Path(data["val_path"])
-    final_train_path = Path(data.get("final_train_path", "q1_3stage_pipeline/data/final_train_dialogues.jsonl"))
+    final_train_path = Path(data.get("final_train_path", "datasets/merged/final_train_dialogues.jsonl"))
     if not train_path.is_absolute():
         train_path = REPO / train_path
     if not val_path.is_absolute():
@@ -127,7 +127,7 @@ def main() -> None:
             [
                 sys.executable,
                 "-u",
-                str(PIPE / "stage1_sft" / "train.py"),
+                str(PIPE / "stage1" / "train.py"),
                 "--config",
                 str(cfg_path),
                 "--train-jsonl",
@@ -152,7 +152,7 @@ def main() -> None:
         stage2_cmd = [
             sys.executable,
             "-u",
-            str(PIPE / "stage2_multi_objective" / "train.py"),
+            str(PIPE / "stage2" / "train.py"),
             "--config",
             str(cfg_path),
             "--init-from",
@@ -210,7 +210,7 @@ def main() -> None:
         stage3_cmd = [
             sys.executable,
             "-u",
-            str(PIPE / "stage3_dpo" / "train.py"),
+            str(PIPE / "stage3" / "train.py"),
             "--m2-path",
             str(m2_final),
             "--train-jsonl",

@@ -36,7 +36,7 @@ Usage:
   bash q1_3stage_pipeline/run_full_pipeline.sh [--gpu N] [--seed S] [--config PATH] [--run-name NAME] [--resume-stage2]
 
 Notes:
-  - This wrapper writes logs under q1_3stage_pipeline/logs/pipeline_runs/.
+  - This wrapper writes logs under q1_3stage_pipeline/outputs/pipeline_runs/.
   - For background run, use nohup:
       nohup bash q1_3stage_pipeline/run_full_pipeline.sh --gpu 1 --seed 43 > /dev/null 2>&1 &
   - If you need online model downloading:

@@ -4,10 +4,9 @@ __pycache__/
 *.py[cod]
 *.so
 
-# Training corpus (large / regenerated separately)
-q1_3stage_pipeline/data/final_train_dialogues.jsonl
+# Derived training corpus (auto-built from train + val dialogues)
+datasets/merged/final_train_dialogues.jsonl
 
-# All local run outputs (checkpoints, JSONL logs, eval_cache, etc.).
+# Local run outputs: checkpoints, metrics, eval cache, nohup logs.
 # Copy to another server with rsync when needed; do not commit large artifacts.
-q1_3stage_pipeline/logs/
-
+q1_3stage_pipeline/outputs/

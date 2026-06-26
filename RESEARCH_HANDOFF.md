@@ -45,9 +45,9 @@ GitHub is **not** used to store multi‑GB checkpoints; use `rsync`, S3, or an i
 
 | Stage | Role | Primary script |
 |-------|------|------------------|
-| **1** | Supervised fine-tuning (SFT) on dialogue data | `q1_3stage_pipeline/stage1_sft/train.py` |
-| **2** | Multi-objective training (generation + entailment + triplet) on top of M1 | `q1_3stage_pipeline/stage2_multi_objective/train.py` |
-| **3** | DPO alignment on top of M2 (TRL `DPOTrainer`) | `q1_3stage_pipeline/stage3_dpo/train.py` |
+| **1** | Supervised fine-tuning (SFT) on dialogue data | `q1_3stage_pipeline/stage1/train.py` |
+| **2** | Multi-objective training (generation + entailment + triplet) on top of M1 | `q1_3stage_pipeline/stage2/train.py` |
+| **3** | DPO alignment on top of M2 (TRL `DPOTrainer`) | `q1_3stage_pipeline/stage3/train.py` |
 
 End-to-end orchestration (optional): `q1_3stage_pipeline/run_full_pipeline.py`  
 Default path config: `q1_3stage_pipeline/configs/pipeline_default.yaml`
@@ -59,18 +59,18 @@ Default path config: `q1_3stage_pipeline/configs/pipeline_default.yaml`
 ### Stage 1 — **done**
 
 - **Run name:** `M1_seed43_qlora` (seed **43** in this experiment line).
-- **Evidence:** `q1_3stage_pipeline/logs/stage1_metrics/M1_seed43_qlora/summary.json` reports finished training through **epoch 3.0**, `train_loss`, `val_perplexity`, `train_runtime`.
-- **Exported weights:** `q1_3stage_pipeline/logs/checkpoints/stage1/M1_seed43_qlora/final/` (and intermediate checkpoints under the same parent).
+- **Evidence:** `q1_3stage_pipeline/outputs/stage1_metrics/M1_seed43_qlora/summary.json` reports finished training through **epoch 3.0**, `train_loss`, `val_perplexity`, `train_runtime`.
+- **Exported weights:** `q1_3stage_pipeline/outputs/checkpoints/stage1/M1_seed43_qlora/final/` (and intermediate checkpoints under the same parent).
 
 ### Stage 2 — **done** (M2 produced for downstream use)
 
-- **Run directory:** `q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/`
+- **Run directory:** `q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/`
 - **Evidence:** `best/` and `final/` HF-style trees exist; `train_log.jsonl` covers the full training window for this run; `run_args.json` records hyperparameters and paths.
 - **Stage 3 consumes:** `.../M2_fromM1_seed43_full_finaltrain/final/` as `--m2-path`.
 
 ### Repository and automation
 
-- Code and **non-weight** run artifacts (metrics, configs, text logs, tokenizer JSON, etc.) are versioned under `q1_3stage_pipeline/logs/` per `.gitignore` rules (large `*.safetensors`, `optimizer.pt`, `latest.pt` remain local only unless you add other storage).
+- Code and **non-weight** run artifacts (metrics, configs, text logs, tokenizer JSON, etc.) are versioned under `q1_3stage_pipeline/outputs/` per `.gitignore` rules (large `*.safetensors`, `optimizer.pt`, `latest.pt` remain local only unless you add other storage).
 - Stage 3 **resume from checkpoint** is implemented: `--resume`, `--resume-from-checkpoint`, and pipeline flag `--resume-stage3` (see section 5).
 
 ---
@@ -79,7 +79,7 @@ Default path config: `q1_3stage_pipeline/configs/pipeline_default.yaml`
 
 ### Stage 3 (DPO) — **incomplete**
 
-- **Output directory:** `q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/`
+- **Output directory:** `q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/`
 - **Checkpoint on disk:** `checkpoint-200/` (Hugging Face trainer checkpoint).
 - **Trainer schedule (from `checkpoint-200/trainer_state.json`):** `max_steps` = **466** for `num_train_epochs` = **1**, but training reached **global_step** = **200** only (~**43%** of one epoch in step terms).
 - **No** `final/` export under Stage 3 yet (that is written when training runs to completion and `save_model` runs at the end of the script).
@@ -95,22 +95,22 @@ Default path config: `q1_3stage_pipeline/configs/pipeline_default.yaml`
 
 1. **Repo:** `git clone` from GitHub, then `git pull` on branch `main` (same code as handoff with resume flags).
 2. **Data (including gitignored files):**
-   - `q1_3stage_pipeline/data/train_70_dialogues.jsonl`
-   - `q1_3stage_pipeline/data/val_10_dialogues.jsonl`
-   - `q1_3stage_pipeline/data/test_20_dialogues.jsonl` (for held-out evaluation later, if used)
-   - **`q1_3stage_pipeline/data/final_train_dialogues.jsonl`** — required for Stage 3 strict path; often **not** in Git due to `.gitignore`
+   - `datasets/dialogue_splits_70_10_20/train_70_dialogues.jsonl`
+   - `datasets/dialogue_splits_70_10_20/val_10_dialogues.jsonl`
+   - `datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl` (for held-out evaluation later, if used)
+   - **`datasets/merged/final_train_dialogues.jsonl`** — required for Stage 3 strict path; often **not** in Git due to `.gitignore`
 3. **Stage 1 `final/`** — only if you plan to re-run Stage 2; not required if you only resume Stage 3.
 4. **Stage 2 `final/` (M2)** — **required** for Stage 3: entire folder  
-   `q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/`  
+   `q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/`  
    including all **`.safetensors`** shards and index, configs, tokenizer files.
 5. **Stage 3 partial run directory:**  
-   `q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/`  
+   `q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/`  
    at minimum: **`checkpoint-200/`** (full tree), **`preferences.jsonl`**, and any small side files you already had there.
 
 ### Optional
 
-- `q1_3stage_pipeline/logs/pipeline_runs/*.log` for debugging history.
-- `splits_dialogue_level/` and root `README.md` / `report.md` for documentation context.
+- `q1_3stage_pipeline/outputs/pipeline_runs/*.log` for debugging history.
+- `datasets/` and `datasets/README.md` for all JSONL splits.
 
 ### Do **not** copy
 
@@ -121,11 +121,12 @@ Default path config: `q1_3stage_pipeline/configs/pipeline_default.yaml`
 From the old host (adjust user, host, and paths):
 
 ```bash
-rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/data/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/data/
+rsync -avz --progress /path/to/Legal_posco-3stages/datasets/ user@NEW:/path/to/Legal_posco-3stages/datasets/
+rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/
 # M1 final (needed for Stage 1 test eval or to re-run Stage 2 from M1)
-rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/logs/checkpoints/stage1/M1_seed43_qlora/final/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/logs/checkpoints/stage1/M1_seed43_qlora/final/
-rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/
-rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/
+rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/checkpoints/stage1/M1_seed43_qlora/final/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/checkpoints/stage1/M1_seed43_qlora/final/
+rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/
+rsync -avz --progress /path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/ user@NEW:/path/to/Legal_posco-3stages/q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/
 ```
 
 ---
@@ -137,10 +138,10 @@ Run from the **repository root** (`Legal_posco-3stages/`). Use the **same** hype
 ### Canonical resume command
 
 ```bash
-python3 -u q1_3stage_pipeline/stage3_dpo/train.py \
-  --m2-path q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final \
-  --train-jsonl q1_3stage_pipeline/data/final_train_dialogues.jsonl \
-  --output-dir q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1 \
+python3 -u q1_3stage_pipeline/stage3/train.py \
+  --m2-path q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final \
+  --train-jsonl datasets/merged/final_train_dialogues.jsonl \
+  --output-dir q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1 \
   --beta 0.1 \
   --lr 5e-6 \
   --epochs 1.0 \
@@ -151,7 +152,7 @@ python3 -u q1_3stage_pipeline/stage3_dpo/train.py \
 ```
 
 - **`--resume`** picks up the **latest** checkpoint under `--output-dir` (here, `checkpoint-200` if nothing newer exists).
-- To pin a folder explicitly: add **`--resume-from-checkpoint q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/checkpoint-200`** instead of `--resume`.
+- To pin a folder explicitly: add **`--resume-from-checkpoint q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/checkpoint-200`** instead of `--resume`.
 
 ### Via pipeline (skip Stages 1–2, resume Stage 3)
 
@@ -167,7 +168,7 @@ Ensure **`final_train_dialogues.jsonl`** exists at the path in the YAML (`final_
 
 ### Optional: resume **Stage 2** only (multi-objective)
 
-If you ever need to continue Stage 2 from `output_dir/checkpoints/latest.pt` on the new machine, use **`--resume`** on `stage2_multi_objective/train.py`, or the orchestrator:
+If you ever need to continue Stage 2 from `output_dir/checkpoints/latest.pt` on the new machine, use **`--resume`** on `stage2/train.py`, or the orchestrator:
 
 ```bash
 python3 -u q1_3stage_pipeline/run_full_pipeline.py \
@@ -192,9 +193,9 @@ You must have copied the full Stage 2 **run directory** (including `latest.pt` i
 ## 7. How to **verify** completion after Stage 3
 
 - Directory exists:  
-  `q1_3stage_pipeline/logs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/final/`
+  `q1_3stage_pipeline/outputs/checkpoints/stage3/M3_fromM2_seed43_beta0.1/final/`
 - `trainer_state.json` in the last checkpoint shows **`global_step`** reached the scheduled **`max_steps`** (or training ended by epoch as configured).
-- Script prints **`Saved .../final`** at the end of `stage3_dpo/train.py`.
+- Script prints **`Saved .../final`** at the end of `stage3/train.py`.
 
 ---
 
@@ -224,9 +225,9 @@ You must have copied the full Stage 2 **run directory** (including `latest.pt` i
 
 **What is not in Git (must copy or have locally):**
 
-- **M1 weights:** `q1_3stage_pipeline/logs/checkpoints/stage1/M1_seed43_qlora/final/` (full HF tree including `*.safetensors`).
-- **M2 weights:** `q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/`.
-- **Test dialogues:** `q1_3stage_pipeline/data/test_20_dialogues.jsonl` (tracked in Git if present in repo; if missing, copy from your machine).
+- **M1 weights:** `q1_3stage_pipeline/outputs/checkpoints/stage1/M1_seed43_qlora/final/` (full HF tree including `*.safetensors`).
+- **M2 weights:** `q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final/`.
+- **Test dialogues:** `datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl` (tracked in Git if present in repo; if missing, copy from your machine).
 
 **Run both evaluations (from repo root, after `python -m venv .venv` + install deps):**
 
@@ -247,12 +248,12 @@ By default the shell script uses **`$ROOT/.venv/bin/python`**. Override if neede
 
 **Alternative metric entrypoint:** if you already have a predictions JSONL aligned with the test file, you can use `q1_3stage_pipeline/evaluation/run_eval.py --test-jsonl ... --pred-jsonl ...` (see root `README.md`).
 
-Or run `checkpoint_test_eval.py` once per stage with `--eval-name`, `--model-path`, and output paths under `q1_3stage_pipeline/logs/evaluation/` (see script docstring).
+Or run `checkpoint_test_eval.py` once per stage with `--eval-name`, `--model-path`, and output paths under `q1_3stage_pipeline/outputs/evaluation/` (see script docstring).
 
 **Saving metrics to Git:** after a full run, add and push the generated files, for example:
 
 ```bash
-git add q1_3stage_pipeline/logs/evaluation/
+git add q1_3stage_pipeline/outputs/evaluation/
 git status
 git commit -m "Test eval results (M1/M2 on test split)"
 git push origin main && git push stage3 main

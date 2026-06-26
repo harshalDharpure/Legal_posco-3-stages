@@ -27,12 +27,12 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--dialogue-jsonl",
-        default="q1_3stage_pipeline/data/test_20_dialogues.jsonl",
+        default="datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl",
         help="Dialogue-level JSONL (with `turns`).",
     )
     ap.add_argument(
         "--out-jsonl",
-        default="q1_3stage_pipeline/logs/eval_cache/test_pairs_flat.jsonl",
+        default="q1_3stage_pipeline/outputs/eval_cache/test_pairs_flat.jsonl",
         help="Pair-level JSONL for generate_preds + run_eval.",
     )
     args = ap.parse_args()

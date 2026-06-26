@@ -3,11 +3,11 @@
 Run automatic metrics (ROUGE, BLEU, METEOR, NLI) on reference/candidate pairs.
 
 Examples:
-  python q1_3stage_pipeline/evaluation/run_eval.py --refs-cands q1_3stage_pipeline/logs/sample_pairs.json
+  python q1_3stage_pipeline/evaluation/run_eval.py --refs-cands q1_3stage_pipeline/outputs/sample_pairs.json
 
   python q1_3stage_pipeline/evaluation/run_eval.py \
-    --test-jsonl q1_3stage_pipeline/data/splits/test.jsonl \
-    --pred-jsonl q1_3stage_pipeline/logs/preds.jsonl
+    --test-jsonl datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl \
+    --pred-jsonl q1_3stage_pipeline/outputs/preds.jsonl
 """
 
 from __future__ import annotations

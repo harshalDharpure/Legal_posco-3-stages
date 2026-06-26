@@ -4,31 +4,31 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 PY="${PY:-$ROOT/.venv/bin/python}"
-TEST_JSONL="${TEST_JSONL:-q1_3stage_pipeline/data/test_20_dialogues.jsonl}"
-REFS="${REFS:-q1_3stage_pipeline/logs/evaluation/test_flat_refs.jsonl}"
-OUT="$ROOT/q1_3stage_pipeline/logs/evaluation"
+TEST_JSONL="${TEST_JSONL:-datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl}"
+REFS="${REFS:-q1_3stage_pipeline/outputs/evaluation/test_flat_refs.jsonl}"
+OUT="$ROOT/q1_3stage_pipeline/outputs/evaluation"
 mkdir -p "$OUT"
 
 echo "=== Stage 1 (M1) ==="
 "$PY" -u q1_3stage_pipeline/evaluation/checkpoint_test_eval.py \
   --eval-name stage1_m1_test \
-  --model-path q1_3stage_pipeline/logs/checkpoints/stage1/M1_seed43_qlora/final \
+  --model-path q1_3stage_pipeline/outputs/checkpoints/stage1/M1_seed43_qlora/final \
   --test-jsonl "$TEST_JSONL" \
   --refs-jsonl "$REFS" \
-  --preds-jsonl q1_3stage_pipeline/logs/evaluation/stage1_m1_test_predictions.jsonl \
-  --results-json q1_3stage_pipeline/logs/evaluation/stage1_m1_test_results.json \
-  --results-md q1_3stage_pipeline/logs/evaluation/stage1_m1_test_results.md \
+  --preds-jsonl q1_3stage_pipeline/outputs/evaluation/stage1_m1_test_predictions.jsonl \
+  --results-json q1_3stage_pipeline/outputs/evaluation/stage1_m1_test_results.json \
+  --results-md q1_3stage_pipeline/outputs/evaluation/stage1_m1_test_results.md \
   "$@"
 
 echo "=== Stage 2 (M2) ==="
 "$PY" -u q1_3stage_pipeline/evaluation/checkpoint_test_eval.py \
   --eval-name stage2_m2_test \
-  --model-path q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final \
+  --model-path q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final \
   --test-jsonl "$TEST_JSONL" \
   --refs-jsonl "$REFS" \
-  --preds-jsonl q1_3stage_pipeline/logs/evaluation/stage2_m2_test_predictions.jsonl \
-  --results-json q1_3stage_pipeline/logs/evaluation/stage2_m2_test_results.json \
-  --results-md q1_3stage_pipeline/logs/evaluation/stage2_m2_test_results.md \
+  --preds-jsonl q1_3stage_pipeline/outputs/evaluation/stage2_m2_test_predictions.jsonl \
+  --results-json q1_3stage_pipeline/outputs/evaluation/stage2_m2_test_results.json \
+  --results-md q1_3stage_pipeline/outputs/evaluation/stage2_m2_test_results.md \
   "$@"
 
 echo "Done. Results under $OUT (stage1_m1_* and stage2_m2_*)."

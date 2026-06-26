@@ -23,9 +23,9 @@ The dataset consists of multi-turn legal dialogues with Hindi/English code-mixin
 ### Split protocol
 Training is dialogue-level split to avoid leakage across turns:
 
-- **Train**: `q1_3stage_pipeline/data/train_70_dialogues.jsonl`
-- **Val**: `q1_3stage_pipeline/data/val_10_dialogues.jsonl`
-- **Test**: `q1_3stage_pipeline/data/test_20_dialogues.jsonl`
+- **Train**: `datasets/dialogue_splits_70_10_20/train_70_dialogues.jsonl`
+- **Val**: `datasets/dialogue_splits_70_10_20/val_10_dialogues.jsonl`
+- **Test**: `datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl`
 
 Each dialogue JSONL record contains `turns`. Training code flattens dialogues into (prompt, response) examples in-memory.
 
@@ -230,15 +230,15 @@ We set deterministic seeds and save run configuration files:
 - `config_used.yaml`
 - `run_args.json`
 
-for each training run directory under `q1_3stage_pipeline/logs/checkpoints/`.
+for each training run directory under `q1_3stage_pipeline/outputs/checkpoints/`.
 
 ### Key directories
 
 - `q1_3stage_pipeline/configs/`: YAML configuration
 - `q1_3stage_pipeline/data/`: JSONL splits (dialogue-level)
-- `q1_3stage_pipeline/logs/checkpoints/stage1/`: Stage 1 checkpoints
-- `q1_3stage_pipeline/logs/checkpoints/stage2/`: Stage 2 checkpoints + logs
-- `q1_3stage_pipeline/logs/checkpoints/stage3/`: Stage 3 outputs (DPO)
+- `q1_3stage_pipeline/outputs/checkpoints/stage1/`: Stage 1 checkpoints
+- `q1_3stage_pipeline/outputs/checkpoints/stage2/`: Stage 2 checkpoints + logs
+- `q1_3stage_pipeline/outputs/checkpoints/stage3/`: Stage 3 outputs (DPO)
 
 ## Operational Notes
 

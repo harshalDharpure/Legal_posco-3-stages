@@ -9,11 +9,11 @@ project:
 data:
   # Dialogue-level split (NO pair files). These JSONLs contain `turns`.
   # Training code flattens them into (input, output) examples in-memory.
-  train_path: "q1_3stage_pipeline/data/train_70_dialogues.jsonl"
-  val_path: "q1_3stage_pipeline/data/val_10_dialogues.jsonl"
-  test_path: "q1_3stage_pipeline/data/test_20_dialogues.jsonl"
+  train_path: "datasets/dialogue_splits_70_10_20/train_70_dialogues.jsonl"
+  val_path: "datasets/dialogue_splits_70_10_20/val_10_dialogues.jsonl"
+  test_path: "datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl"
   # Optional (after tuning is frozen): merge train+val dialogues manually if desired.
-  final_train_path: "q1_3stage_pipeline/data/final_train_dialogues.jsonl"
+  final_train_path: "datasets/merged/final_train_dialogues.jsonl"
 
 training:
   max_length: 512
@@ -39,6 +39,6 @@ stage3_dpo:
   num_epochs: 1
 
 paths:
-  checkpoints_root: "q1_3stage_pipeline/logs/checkpoints"
-  logs_root: "q1_3stage_pipeline/logs"
+  checkpoints_root: "q1_3stage_pipeline/outputs/checkpoints"
+  logs_root: "q1_3stage_pipeline/outputs"
 

@@ -8,16 +8,16 @@ Examples:
 
   python3 -u q1_3stage_pipeline/evaluation/checkpoint_test_eval.py \\
     --eval-name stage1_m1_test \\
-    --model-path q1_3stage_pipeline/logs/checkpoints/stage1/M1_seed43_qlora/final \\
-    --test-jsonl q1_3stage_pipeline/data/test_20_dialogues.jsonl \\
-    --refs-jsonl q1_3stage_pipeline/logs/evaluation/test_flat_refs.jsonl \\
-    --preds-jsonl q1_3stage_pipeline/logs/evaluation/stage1_m1_test_predictions.jsonl \\
-    --results-json q1_3stage_pipeline/logs/evaluation/stage1_m1_test_results.json \\
-    --results-md q1_3stage_pipeline/logs/evaluation/stage1_m1_test_results.md
+    --model-path q1_3stage_pipeline/outputs/checkpoints/stage1/M1_seed43_qlora/final \\
+    --test-jsonl datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl \\
+    --refs-jsonl q1_3stage_pipeline/outputs/evaluation/test_flat_refs.jsonl \\
+    --preds-jsonl q1_3stage_pipeline/outputs/evaluation/stage1_m1_test_predictions.jsonl \\
+    --results-json q1_3stage_pipeline/outputs/evaluation/stage1_m1_test_results.json \\
+    --results-md q1_3stage_pipeline/outputs/evaluation/stage1_m1_test_results.md
 
   python3 -u q1_3stage_pipeline/evaluation/checkpoint_test_eval.py \\
     --eval-name stage2_m2_test \\
-    --model-path q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final \\
+    --model-path q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_finaltrain/final \\
     ...
 """
 

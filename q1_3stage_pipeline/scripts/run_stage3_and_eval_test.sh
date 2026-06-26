@@ -17,21 +17,21 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
-M2_PATH="${M2_PATH:-q1_3stage_pipeline/logs/checkpoints/stage2/M2_fromM1_seed43_full_resume_gpu4/best}"
-M3_OUT="${M3_OUT:-q1_3stage_pipeline/logs/checkpoints/stage3/M3_eval_run}"
+M2_PATH="${M2_PATH:-q1_3stage_pipeline/outputs/checkpoints/stage2/M2_fromM1_seed43_full_resume_gpu4/best}"
+M3_OUT="${M3_OUT:-q1_3stage_pipeline/outputs/checkpoints/stage3/M3_eval_run}"
 # If set, skip DPO and generate from this checkpoint (e.g. M2 best for baseline).
 GEN_MODEL_PATH="${GEN_MODEL_PATH:-}"
-TRAIN_JSONL="${TRAIN_JSONL:-q1_3stage_pipeline/data/train_70_dialogues.jsonl}"
-TEST_DIALOGUES="${TEST_DIALOGUES:-q1_3stage_pipeline/data/test_20_dialogues.jsonl}"
-PAIRS="${PAIRS:-q1_3stage_pipeline/logs/eval_cache/test_pairs_flat.jsonl}"
-PREDS="${PREDS:-q1_3stage_pipeline/logs/eval_cache/test_preds.jsonl}"
-METRICS="${METRICS:-q1_3stage_pipeline/logs/eval_cache/test_metrics.json}"
+TRAIN_JSONL="${TRAIN_JSONL:-datasets/dialogue_splits_70_10_20/train_70_dialogues.jsonl}"
+TEST_DIALOGUES="${TEST_DIALOGUES:-datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl}"
+PAIRS="${PAIRS:-q1_3stage_pipeline/outputs/eval_cache/test_pairs_flat.jsonl}"
+PREDS="${PREDS:-q1_3stage_pipeline/outputs/eval_cache/test_preds.jsonl}"
+METRICS="${METRICS:-q1_3stage_pipeline/outputs/eval_cache/test_metrics.json}"
 MIN_NLI="${MIN_NLI:-0.70}"
 BETA="${BETA:-0.1}"
 SEED="${SEED:-43}"
 LOAD_4BIT="${LOAD_4BIT:-1}"
 
-mkdir -p q1_3stage_pipeline/logs/eval_cache
+mkdir -p q1_3stage_pipeline/outputs/eval_cache
 
 echo "[1/4] Flatten test dialogues -> pairs"
 python3 -u q1_3stage_pipeline/evaluation/prepare_test_pairs.py \
@@ -40,7 +40,7 @@ python3 -u q1_3stage_pipeline/evaluation/prepare_test_pairs.py \
 
 if [[ "${SKIP_DPO:-0}" != "1" && -z "${GEN_MODEL_PATH}" ]]; then
   echo "[2/4] Stage 3 DPO (from M2)"
-  S3_CMD=(python3 -u q1_3stage_pipeline/stage3_dpo/train.py
+  S3_CMD=(python3 -u q1_3stage_pipeline/stage3/train.py
     --m2-path "$M2_PATH"
     --train-jsonl "$TRAIN_JSONL"
     --output-dir "$M3_OUT"

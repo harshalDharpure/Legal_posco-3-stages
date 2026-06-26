@@ -7,9 +7,9 @@ This document answers the checklist questions for the **Legal_posco-3stages** re
 ## 1. Source of legal documents
 
 - **Primary packaged source (this repo):** dialogue-level JSONL splits used for training and evaluation:
-  - `q1_3stage_pipeline/data/train_70_dialogues.jsonl`
-  - `q1_3stage_pipeline/data/val_10_dialogues.jsonl`
-  - `q1_3stage_pipeline/data/test_20_dialogues.jsonl`
+  - `datasets/dialogue_splits_70_10_20/train_70_dialogues.jsonl`
+  - `datasets/dialogue_splits_70_10_20/val_10_dialogues.jsonl`
+  - `datasets/dialogue_splits_70_10_20/test_20_dialogues.jsonl`
 - **Upstream merge (documented in code):** `create_70_10_20_split_dialogue_level.py` loads three **raw** dialogue corpora (expected at repo root when you run the script):
   - `hindi_complete_posco_data.jsonl`
   - `english_posco_dataset.jsonl`
